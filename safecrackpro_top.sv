@@ -3,7 +3,7 @@ module safecrack_top (
     input  logic [3:0]  KEY,
     output logic [6:0]  HEX0, HEX1, HEX2, HEX3,
     output logic [6:0]  HEX4,      // Novo display para o dígito ativo
-    output logic [7:0]  LEDG,      // 8 LEDs verdes na DE2-115
+    output logic [8:0]  LEDG,      // 9 LEDs verdes na DE2-115
     output logic [17:0] LEDR       // 18 LEDs vermelhos na DE2-115
 );
 
@@ -39,7 +39,7 @@ module safecrack_top (
 
     // Saídas de LEDs
     always_comb begin
-        LEDG = unlocked ? 8'hFF   : 8'h00;
+        LEDG = unlocked ? 9'h1FF  : 9'h000;
         LEDR = failed   ? 18'h3FFFF : 18'h00000;
     end
 

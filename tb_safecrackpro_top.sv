@@ -25,7 +25,7 @@ module safecrack_tb;
     logic        clk;
     logic [3:0]  key;
     logic [6:0]  HEX0, HEX1, HEX2, HEX3, HEX4;
-    logic [7:0]  LEDG;
+    logic [8:0]  LEDG;
     logic [17:0] LEDR;
 
     // ----------------------------------------------------------------
@@ -150,7 +150,7 @@ module safecrack_tb;
         check("Digito ativo = primeiro (active_reg = 3)",
               u_top.u_fsm.active_reg == 2'd3);
         check("LEDs vermelhos apagados", LEDR == 18'h00000);
-        check("LEDs verdes apagados",    LEDG == 8'h00);
+        check("LEDs verdes apagados",    LEDG == 9'h000);
         check("HEX4 indica posicao 1",   HEX4 == seg7(1));
         check("HEX3 exibe 0", HEX3 == seg7(0));
         check("HEX0 exibe 0", HEX0 == seg7(0));
@@ -207,7 +207,7 @@ module safecrack_tb;
 
         enter_digit(2); press(CONFIRM);   // 4º dígito = 2 -> CHECK -> SUCCESS
         check("digits[0] = 2", u_top.u_fsm.digits[0] == 4'd2);
-        check("LEDs VERDES acesos (cofre aberto)", LEDG == 8'hFF);
+        check("LEDs VERDES acesos (cofre aberto)", LEDG == 9'h1FF);
         check("LEDs vermelhos apagados",           LEDR == 18'h00000);
 
         skip_timer();
@@ -226,7 +226,7 @@ module safecrack_tb;
         press(CONFIRM);
         press(CONFIRM);                   // 4º confirma -> CHECK -> FAIL
         check("LEDs VERMELHOS acesos (senha errada)", LEDR == 18'h3FFFF);
-        check("LEDs verdes apagados",                 LEDG == 8'h00);
+        check("LEDs verdes apagados",                 LEDG == 9'h000);
 
         skip_timer();
         check("Retorno automatico apos FAIL (digitos zerados)",
@@ -257,7 +257,7 @@ module safecrack_tb;
         check("Dígito ativo inalterado (active_reg = 3)",
               u_top.u_fsm.active_reg == 2'd3);
         check("Sem LEDs vermelhos", LEDR == 18'h00000);
-        check("Sem LEDs verdes",    LEDG == 8'h00);
+        check("Sem LEDs verdes",    LEDG == 9'h000);
 
         // ------------------------------------------------------------
         // Resultado final

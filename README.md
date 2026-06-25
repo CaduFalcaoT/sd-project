@@ -90,7 +90,7 @@ KEY[0].
 
 | LED | Largura | Significado |
 |---|---|---|
-| **`LEDG`** | 8 bits | `8'hFF` por **5 s** → senha **correta**, cofre aberto. |
+| **`LEDG`** | 9 bits | `9'h1FF` por **5 s** → senha **correta**, cofre aberto. |
 | **`LEDR`** | 18 bits | `18'h3FFFF` por **3 s** → senha **incorreta**. |
 
 ---
@@ -195,8 +195,8 @@ localparam logic [27:0] T_OK  = 28'd250_000_000; // 5 s  (250M / 50MHz)
 localparam logic [27:0] T_ERR = 28'd150_000_000; // 3 s  (150M / 50MHz)
 ```
 
-- **`SUCCESS`** → `unlocked = 1`, e o *top* acende **todos os LEDs verdes**
-  (`LEDG = 8'hFF`) por 5 s.
+- **`SUCCESS`** → `unlocked = 1`, e o *top* acende **todos os 9 LEDs verdes**
+  (`LEDG = 9'h1FF`) por 5 s.
 - **`FAIL`** → `failed = 1`, e o *top* acende **os LEDs vermelhos**
   (`LEDR = 18'h3FFFF`) por 3 s.
 
@@ -390,9 +390,6 @@ O *testbench* (`safecrack_tb`) é auto-verificável: cada cenário usa a tarefa
    software, mas não filtra ruído elétrico do *push button*. Na DE2-115 os botões
    já possuem *debounce* por hardware (Schmitt trigger), então não houve problemas
    na prática.
-
-3. **Largura de `LEDG`.** O *top* usa `LEDG[7:0]` (8 LEDs verdes). Caso a pinagem
-   utilizada exponha 9 LEDs verdes, ajuste a largura do barramento.
 
 ---
 
