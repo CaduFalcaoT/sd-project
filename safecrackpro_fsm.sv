@@ -86,8 +86,11 @@ module safecrack_fsm (
             end
 
             CHECK: begin
-                if (digits[0] == PASS[0] && digits[1] == PASS[1] &&
-                    digits[2] == PASS[2] && digits[3] == PASS[3]) begin
+                // digits[3] é o 1º dígito digitado (HEX3) e digits[0] é o 4º (HEX0).
+                // PASS[0..3] está na ordem de digitação (1º ao 4º dígito),
+                // por isso a comparação é cruzada: digits[3]<->PASS[0], etc.
+                if (digits[3] == PASS[0] && digits[2] == PASS[1] &&
+                    digits[1] == PASS[2] && digits[0] == PASS[3]) begin
                     next_state = SUCCESS;
                     next_timer = T_OK;
                 end else begin

@@ -21,6 +21,7 @@ o usuário **compõe** cada dígito navegando de 0 a 9 com os *push buttons* da 
 - [Parâmetros configuráveis](#parâmetros-configuráveis)
 - [Diagramas de tempo (waveforms)](#diagramas-de-tempo-waveforms)
 - [Como simular e sintetizar](#como-simular-e-sintetizar)
+- [Bugs corrigidos (encontrados na simulação)](#bugs-corrigidos-encontrados-na-simulação)
 - [Known issues](#known-issues)
 - [Autores](#autores)
 
@@ -293,7 +294,7 @@ Definidos como `localparam` em `safecrack_fsm`:
 
 | Parâmetro | Valor | Significado |
 |---|---|---|
-| `PASS` | `{1, 2, 1, 2}` | Senha correta (dígitos 0→3). |
+| `PASS` | `{1, 2, 1, 2}` | Senha correta, na ordem de digitação (1º→4º dígito). |
 | `T_OK` | `250_000_000` | Ciclos de LED verde aceso → **5 s** @ 50 MHz. |
 | `T_ERR` | `150_000_000` | Ciclos de LED vermelho aceso → **3 s** @ 50 MHz. |
 
@@ -340,13 +341,25 @@ add wave -r /*
 run -all
 ```
 
-O *testbench* (`safecrack_tb`) aplica um *reset*, compõe a sequência **1-2-1-2**
-(incrementos com KEY[2] e confirmações com KEY[1]) e verifica que, ao confirmar o
-4º dígito, `LEDG == 8'hFF` e `LEDR == 0` — imprimindo `SUCESSO` no console.
+O *testbench* (`safecrack_tb`) é auto-verificável: cada cenário usa a tarefa
+`check(...)`, que conta `PASS`/`FAIL` e imprime um resumo final no console. São
+**9 cenários**:
 
-> Para observar os 5 s de LED verde em simulação seria necessário rodar ~250 M
-> ciclos. O *testbench* apenas verifica o **flag** logo após a transição para
-> `SUCCESS`, sem aguardar o tempo completo.
+| # | Cenário | Verifica |
+|---|---|---|
+| 1 | Reset inicial | dígitos zerados, dígito ativo = primeiro, LEDs apagados, HEX4 = 1 |
+| 2 | Incremento (KEY[2]) | `digits[3]` 0→1→2 e HEX3 correspondente |
+| 3 | Decremento (KEY[3]) | `digits[3]` 2→1 |
+| 4 | Wrap-around DEC | 0 → 9 |
+| 5 | Wrap-around INC | 9 → 0 |
+| 6 | Senha **correta** `1-2-1-2` | `LEDG = FF`, `LEDR = 0` e retorno automático |
+| 7 | Senha **errada** `0-0-0-0` | `LEDR = 3FFFF`, `LEDG = 0` e retorno automático |
+| 8 | Independência por posição | editar uma posição não afeta as demais |
+| 9 | Estabilidade sem botão | nada muda se nenhum botão é pressionado |
+
+> Para observar os 5 s / 3 s dos LEDs seria necessário rodar 250 M / 150 M ciclos.
+> O *testbench* força o contador interno `timer` a zero (`force ... = 0`) para
+> validar o **retorno automático** a `EDITING` sem aguardar o tempo completo.
 
 ### Síntese (Quartus / DE2-115)
 
@@ -357,6 +370,16 @@ O *testbench* (`safecrack_tb`) aplica um *reset*, compõe a sequência **1-2-1-2
    `HEX4..HEX0` → displays de 7 segmentos, `LEDG`/`LEDR` → LEDs verdes/vermelhos.
 
 ---
+
+## Bugs corrigidos (encontrados na simulação)
+
+- **Ordem dos índices na verificação da senha.** Como o 1º dígito digitado é
+  armazenado em `digits[3]` (HEX3) e o 4º em `digits[0]` (HEX0), a comparação
+  original `digits[i] == PASS[i]` confrontava a senha **invertida** — o cofre só
+  abria com `2-1-2-1` em vez de `1-2-1-2`. A simulação acendeu `LEDR` (FAIL) para
+  a senha correta, evidenciando o problema. Corrigido para a comparação cruzada
+  `digits[3]==PASS[0]`, `digits[2]==PASS[1]`, `digits[1]==PASS[2]`,
+  `digits[0]==PASS[3]`, deixando `PASS[0..3]` na ordem natural (1º ao 4º dígito).
 
 ## Known issues
 
