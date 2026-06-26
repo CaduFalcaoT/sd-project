@@ -302,29 +302,27 @@ Definidos como `localparam` em `safecrack_fsm`:
 
 ## Diagramas de tempo (waveforms)
 
-> 📌 **Inserir aqui as capturas do ModelSim.** Os blocos abaixo são *placeholders* —
-> substitua-os pelas imagens exportadas da simulação (`docs/*.png`).
+Capturas obtidas no ModelSim simulando o `safecrack_tb` (todos os 36 *checks*
+passam). Veja [`docs/`](docs/) para gerar/atualizar as imagens.
 
-**1. Detecção de borda (um clique = uma ação)** — `key_pos`, `key_prev`, `key_edge`
-e o dígito ativo, mostrando que segurar o botão **não** gera múltiplos incrementos:
+**1. Visão geral da simulação** — sequência completa de testes, com `pass_cnt`/
+`test_num` subindo e os pulsos de `unlocked` (senha certa) e `failed` (senha errada):
 
-```
-clk      ┌─┐ ┌─┐ ┌─┐ ┌─┐ ┌─┐ ┌─┐ ┌─┐
-key[2]   ───┐_______________┌────────   (ativo baixo: pressionado = 0)
-key_pos  ───┘‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾└────────
-key_edge ____┌─┐______________________   (pulso de 1 ciclo)
-digits   ══0══╳════════ 1 ════════════   (incrementa UMA vez)
-```
+![Waveform — visão geral](docs/wave_overview.png)
 
-![Waveform — detecção de borda](docs/wave_edge.png)
-
-**2. Composição da senha correta (1-2-1-2) → `LEDG = FF`:**
+**2. Senha correta (1-2-1-2) → cofre aberto.** Note `d3,d2,d1,d0 = 1,2,1,2`,
+`unlocked = 1` e todos os LEDs verdes acesos (`LEDG`):
 
 ![Waveform — senha correta](docs/wave_success.png)
 
-**3. Senha incorreta → `LEDR` aceso e retorno automático:**
+**3. Senha incorreta → LEDs vermelhos.** Dígitos `0000`, `failed = 1` e `LEDR`
+todo aceso, com retorno automático a `EDITING`:
 
 ![Waveform — senha incorreta](docs/wave_fail.png)
+
+> A detecção de borda (um clique = uma ação) também é visível ao dar *zoom* em
+> qualquer pressionamento: `key_edge` aparece como um pulso de **um único ciclo**,
+> e o dígito muda apenas uma vez mesmo com o botão segurado.
 
 ---
 
